@@ -1,0 +1,12 @@
+.idea/
+out/
+
+SpeedReader.iml
+
+*.com
+*.class
+*.exe
+
+*.jar
+*.rar
+*.zip

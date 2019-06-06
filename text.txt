@@ -1,0 +1,3 @@
+So, as discussed at the start of this subsection, in this single-solution case the
+general solution results from taking the particular solution and adding to it the
+unique solution of the associated homogeneous system.
