@@ -16,7 +16,7 @@ public class Book {
 
         try {
             entireText = new Scanner(new File(title)).useDelimiter("\\A").next();    // store entire text in the string
-            words = new ArrayList<>(Arrays.asList(entireText.split(" ")));
+            words = new ArrayList<>(Arrays.asList(entireText.split("[\\s\\n]+")));  // split by whitespace, newlines
         } catch (FileNotFoundException f) {
             System.out.println("File not found");
             f.printStackTrace();
@@ -66,10 +66,10 @@ public class Book {
 
     public static void main(String[] args) {
         Book b1 = new Book("text.txt");
-        System.out.println(b1.getWordAtCurrentIndex());
+       /* System.out.println(b1.getWordAtCurrentIndex());
         System.out.println(b1.getNextWord());
         System.out.println(b1.getNextWord());
-        System.out.println(b1.getPreviousWord());
+        System.out.println(b1.getPreviousWord());*/
         b1.printWords();
     }
 }
