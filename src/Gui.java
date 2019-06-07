@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
@@ -13,6 +11,34 @@ import javafx.stage.Stage;
 public class Gui extends Application {
 
     Book b1 = new Book("text.txt");
+    TextArea wordsBox = new TextArea();
+    Button nextWord = new Button("next word");
+
+
+
+    class BackgroundTimer implements Runnable {
+        private Timer timer;
+        private int waitTime;
+        boolean timerEnded;
+
+        public BackgroundTimer(int waitTime) {
+            timer = new Timer();
+            this.waitTime = waitTime;
+            timerEnded = false;
+        }
+
+        @Override
+        public void run() {
+            while (b1.hasValidIndex()) {
+                timer.startTimer();
+                timer.waitGivenTime(waitTime);
+                timer.resetTimer();
+                wordsBox.clear();
+                wordsBox.setText(b1.getNextWord());
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         launch(args);
@@ -23,8 +49,7 @@ public class Gui extends Application {
         HBox readerWindow = new HBox(10);
         Accordion menuList = new Accordion(new TitledPane("Options", new VBox()));
         menuList.setExpandedPane(new TitledPane("Options", new VBox()));
-        TextArea wordsBox = new TextArea();
-        Button nextWord = new Button("next word");
+
         readerWindow.getChildren().addAll(menuList, wordsBox, nextWord);
 
         nextWord.setOnAction(e -> {wordsBox.clear();
@@ -34,5 +59,9 @@ public class Gui extends Application {
 
         primaryStage.setScene(new Scene(readerWindow, 700, 500));
         primaryStage.show();
+
+        /* this code should be placed within some button setOnAction */
+        Thread t1 = new Thread(new BackgroundTimer(200));
+        t1.start();
     }
 }

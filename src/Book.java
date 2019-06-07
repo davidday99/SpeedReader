@@ -33,35 +33,50 @@ public class Book {
     }
 
     /**
+     * Check that currentWordIndex is within bounds of the arraylist
+     * @return
+     */
+    public boolean hasValidIndex() {
+        return currentWordIndex >= 0 && currentWordIndex < words.size();
+    }
+
+    /**
      * Get the word at the current index
-     * @return string contained at currentWordIndex of arraylist
+     * @return string contained at currentWordIndex of arraylist, null if index has reached end of arraylist
      */
     public String getWordAtCurrentIndex() {
-        return words.get(currentWordIndex);
+        if (hasValidIndex()) return words.get(currentWordIndex);
+        else return null;
     }
 
     /**
      * Get the word at currentIndex and increment index
      * Returns same word as getWord atCurrentIndex(), the only difference is
      * that this method will then move on to the next word in the arraylist
-     * @return string contained at currentWordIndex of arraylist
-     * TODO: check that end of arraylist has not been reached
+     * @return string contained at currentWordIndex of arraylist, null if index has reached end of arraylist
      */
     public String getNextWord() {
-        String nextWord = words.get(currentWordIndex);
-        currentWordIndex += 1;
-        return nextWord;
+        if (hasValidIndex()) {
+            String nextWord = words.get(currentWordIndex);
+            currentWordIndex += 1;
+            return nextWord;
+        } else {
+            return null;
+        }
     }
 
     /**
      * Get the word contained at the previous index
      * This method will decrement the index so that it is now viewing the previous word
-     * @return string contained at currentWordIndex after it has been decremented
-     * TODO: check that current index is not at the first element
+     * @return string contained at currentWordIndex after it has been decremented, null if index is at arraylist head
      */
     public String getPreviousWord() {
         currentWordIndex -= 1;
-        return words.get(currentWordIndex);
+        if (hasValidIndex()) return words.get(currentWordIndex);
+        else {
+            currentWordIndex += 1;    // return index to initial location prior to method call
+            return null;
+        }
     }
 
     public static void main(String[] args) {
@@ -70,6 +85,6 @@ public class Book {
         System.out.println(b1.getNextWord());
         System.out.println(b1.getNextWord());
         System.out.println(b1.getPreviousWord());*/
-        b1.printWords();
+       b1.printWords();
     }
 }
