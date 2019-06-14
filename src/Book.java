@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+//TODO: fix current index so prev and next buttons don't have to be pressed twice...
 public class Book {
     public String title;
     private String entireText;    // string containing full text
