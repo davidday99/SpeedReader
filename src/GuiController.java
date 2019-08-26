@@ -1,8 +1,11 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
-
+import javafx.util.Duration;
 
 public class GuiController {
     @FXML
@@ -15,46 +18,56 @@ public class GuiController {
     private Slider speedSetter;
     @FXML
     private Text wordBox;
+    @FXML
+    private TextArea textView;
 
     private Book book;
-    private BackgroundTimer timer;
-    private Thread timerThread;
+    private Timeline timer;  //controls the animation of the words getting printed on the screen
 
     public GuiController() {}
 
     @FXML
     private void initialize() {
+        //TODO: allow user to enter custom text file name
         book = new Book("text.txt");
-        //TODO: implement better design for wait time
-        timer = new BackgroundTimer(getDesiredWaitTime((int) speedSetter.getValue()));
-
-        //TODO: restart thread if previousWord button has been pressed and then play pressed
-        timerThread = new Thread(timer);
 
         previousWordBtn.setOnAction(event -> {
-            timer.stopTimer();
+            timer.stop();
+            toggleReaderBtn.setText("play");
             wordBox.setText(book.getPreviousWord());
         });
 
         nextWordBtn.setOnAction(event -> {
-            timer.stopTimer();
+            timer.stop();
+            toggleReaderBtn.setText("play");
             wordBox.setText(book.getNextWord());
         });
 
         toggleReaderBtn.setOnAction(event -> {
-            timer.toggleBackgroundTimer();
-            if (toggleReaderBtn.getText().equals("play")) {
-                toggleReaderBtn.setText("pause");
-            } else {
+            if (isTimerRunning()) {
+                timer.stop();
                 toggleReaderBtn.setText("play");
+            } else {
+                timer.play();
+                toggleReaderBtn.setText("pause");
             }
         });
 
         speedSetter.valueProperty().addListener(changeListener -> {
-            timer.setWaitTime(getDesiredWaitTime((int) speedSetter.getValue()));
+            boolean timerOn = true;
+            if (timer.getCurrentRate() == 0.0) {timerOn = false;}
+            timer.stop();
+            timer = new Timeline(new KeyFrame(Duration.millis(getDesiredWaitTime((int) speedSetter.getValue())),
+                    event -> wordBox.setText(book.getNextWord())));
+            timer.setCycleCount(Timeline.INDEFINITE);
+            if (timerOn) {timer.play();}
         });
 
-        startTimer();
+        textView.setText(book.getBookText());
+
+        timer = new Timeline(new KeyFrame(Duration.millis(getDesiredWaitTime((int) speedSetter.getValue())),
+                event -> wordBox.setText(book.getNextWord())));
+        timer.setCycleCount(Timeline.INDEFINITE);
     }
 
     //TODO: implement better design for wait time
@@ -68,57 +81,7 @@ public class GuiController {
         }
     }
 
-    private void performTimerMethod() {
-        wordBox.setText(book.getNextWord());
+    private boolean isTimerRunning() {
+        return timer.getCurrentRate() != 0.0;
     }
-
-    class BackgroundTimer extends Timer implements Runnable {
-        //private Timer timer;
-        private int waitTime;
-        boolean timerEnded;
-
-        public BackgroundTimer(int waitTime) {
-            //timer = new Timer();
-            this.waitTime = waitTime;
-            timerEnded = true;
-        }
-
-        @Override
-        public void run() {
-            while (book.hasValidIndex()) {
-                while (timerEnded) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException i) {
-                        i.printStackTrace();
-                    }
-                }
-                startTimer();
-                waitGivenTime(waitTime);
-                resetTimer();
-                performPeriodicFunction();
-            }
-        }
-
-        private void toggleBackgroundTimer() {
-            timerEnded ^= true;
-        }
-
-        private void stopTimer() {
-            timerEnded = true;
-        }
-
-        private void setWaitTime(int waitTime) {
-            this.waitTime = waitTime;
-        }
-
-        private void performPeriodicFunction() {
-            performTimerMethod();
-        }
-    }
-
-    public void startTimer() {
-        timerThread.start();
-    }
-
 }

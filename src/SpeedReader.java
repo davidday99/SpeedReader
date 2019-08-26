@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -19,6 +20,7 @@ public class SpeedReader extends Application {
         scene = new Scene(window);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Speed Reader");
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
     }
 }

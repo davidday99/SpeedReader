@@ -1,29 +1,38 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
-//TODO: fix current index so prev and next buttons don't have to be pressed twice...
 public class Book {
     public String title;
     private String entireText;    // string containing full text
-    private ArrayList<String> words;    // array containing each whitespace-separated word
-    private int currentWordIndex;    // index set to currently viewed word in the arraylist
+    private List<String> words;    // array containing each whitespace-separated word
+    private ListIterator<String> index;
+    private boolean nextPressed;
+    private boolean prevPressed;
 
     public Book(String bookTitle) {
         title = bookTitle;
-        currentWordIndex = 0;
+        nextPressed = false;
+        prevPressed = false;
 
         try {
             entireText = new Scanner(new File(title)).useDelimiter("\\A").next();    // store entire text in the string
             words = new ArrayList<>(Arrays.asList(entireText.split("[\\s\\n]+")));  // split by whitespace, newlines
+            index = words.listIterator();
         } catch (FileNotFoundException f) {
             System.out.println("File not found");
             f.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Get the entire contents of the book
+     * @return string containing the book's text
+     */
+    public String getBookText() {
+        return entireText;
     }
 
     /**
@@ -34,58 +43,45 @@ public class Book {
     }
 
     /**
-     * Check that currentWordIndex is within bounds of the arraylist
-     * @return
-     */
-    public boolean hasValidIndex() {
-        return currentWordIndex >= 0 && currentWordIndex < words.size();
-    }
-
-    /**
-     * Get the word at the current index
-     * @return string contained at currentWordIndex of arraylist, null if index has reached end of arraylist
-     */
-    public String getWordAtCurrentIndex() {
-        if (hasValidIndex()) return words.get(currentWordIndex);
-        else return null;
-    }
-
-    /**
-     * Get the word at currentIndex and increment index
-     * Returns same word as getWord atCurrentIndex(), the only difference is
-     * that this method will then move on to the next word in the arraylist
-     * @return string contained at currentWordIndex of arraylist, null if index has reached end of arraylist
+     * Get the next word using the ListIterator
+     * @return next string in arraylist, null if index has reached end of arraylist
      */
     public String getNextWord() {
-        if (hasValidIndex()) {
-            String nextWord = words.get(currentWordIndex);
-            currentWordIndex += 1;
-            return nextWord;
-        } else {
-            return null;
+        //if the prev button was previously pressed, index must be incremented twice to get the next string
+        if (prevPressed && index.hasNext()) {
+            prevPressed = false;
+            index.next();
         }
+        if (index.hasNext()) {
+            nextPressed = true;
+            return index.next();
+        } else {  //if no next word exists, reset next to avoid skipping over the last word
+            nextPressed = false;
+        }
+        return null;
     }
 
     /**
-     * Get the word contained at the previous index
-     * This method will decrement the index so that it is now viewing the previous word
-     * @return string contained at currentWordIndex after it has been decremented, null if index is at arraylist head
+     * Get the previous word using the ListIterator
+     * @return previous string in arraylist, null if index is at arraylist head
      */
     public String getPreviousWord() {
-        currentWordIndex -= 1;
-        if (hasValidIndex()) return words.get(currentWordIndex);
-        else {
-            currentWordIndex += 1;    // return index to initial location prior to method call
-            return null;
+        //if the next button was previously pressed, index must be decremented twice to get the previous string
+        if (nextPressed && index.hasPrevious()) {
+            nextPressed = false;
+            index.previous();
         }
+        if (index.hasPrevious()) {
+            prevPressed = true;
+            return index.previous();
+        } else {  //if no previous word exists, reset prevPressed to avoid skipping over the first word
+            prevPressed = false;
+        }
+        return null;
     }
 
     public static void main(String[] args) {
         Book b1 = new Book("text.txt");
-       /* System.out.println(b1.getWordAtCurrentIndex());
-        System.out.println(b1.getNextWord());
-        System.out.println(b1.getNextWord());
-        System.out.println(b1.getPreviousWord());*/
-       b1.printWords();
+        b1.printWords();
     }
 }
